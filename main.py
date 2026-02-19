@@ -116,7 +116,6 @@ async def get_status() -> str:
     return (
         f"[{latest_incident['time']}] Product: {latest_incident['product']}\n"
         f"Status: {latest_incident['status']}\n"
-        f"Last checked: {last_checked_at}"
     )
 
 
