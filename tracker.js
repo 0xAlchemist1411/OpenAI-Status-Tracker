@@ -55,7 +55,7 @@ async function pollFeed() {
   }
 }
 
-app.get("/", (_, res) => {
+app.get("/status", (_, res) => {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
 
   if (!latestIncident) {
@@ -75,6 +75,7 @@ app.get("/health", (_, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
   pollFeed();
   setInterval(pollFeed, POLL_INTERVAL);
 });
