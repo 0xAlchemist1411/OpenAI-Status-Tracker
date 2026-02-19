@@ -1,7 +1,15 @@
+const express = require("express");
+const axios = require("axios");
 const Parser = require("rss-parser");
+
+const app = express();
 const parser = new Parser();
 
 const FEED_URL = "https://status.openai.com/feed.atom";
+const POLL_INTERVAL = 30 * 1000; // 30 seconds
+
+let latestIncident = null;
+let lastCheckedAt = null;
 
 function stripHtml(html = "") {
   return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
@@ -16,14 +24,12 @@ function formatTime(date) {
   return new Date(date).toISOString().replace("T", " ").slice(0, 19);
 }
 
-async function run() {
+async function pollFeed() {
   try {
-    const feed = await parser.parseURL(FEED_URL);
+    const response = await axios.get(FEED_URL, { timeout: 10000 });
+    const feed = await parser.parseString(response.data);
 
-    if (!feed.items.length) {
-      console.log("No incidents found.");
-      return;
-    }
+    if (!feed.items || !feed.items.length) return;
 
     const latest = feed.items[0];
 
@@ -31,16 +37,44 @@ async function run() {
       latest.content || latest.contentSnippet || latest.summary || ""
     );
 
-    const status = extractStatus(cleanText);
+    latestIncident = {
+      product: latest.title,
+      status: extractStatus(cleanText),
+      time: formatTime(latest.isoDate),
+      link: latest.link,
+    };
+
+    lastCheckedAt = formatTime(new Date());
 
     console.log(
-      `[${formatTime(latest.isoDate)}] Product: ${latest.title}\n` +
-      `Status: ${status}\n`
+      `[${latestIncident.time}] Product: ${latestIncident.product}\n` +
+      `Status: ${latestIncident.status}\n`
     );
   } catch (err) {
-    console.error("Error fetching feed:", err.message);
-    process.exit(1);
+    console.error("Polling error:", err.message);
   }
 }
 
-run();
+app.get("/", (_, res) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+
+  if (!latestIncident) {
+    return res.send("No incidents detected yet.");
+  }
+
+  res.send(
+    `[${latestIncident.time}] Product: ${latestIncident.product}\n` +
+    `Status: ${latestIncident.status}`
+  );
+});
+
+app.get("/health", (_, res) => {
+  res.send("OK");
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  pollFeed();
+  setInterval(pollFeed, POLL_INTERVAL);
+});
