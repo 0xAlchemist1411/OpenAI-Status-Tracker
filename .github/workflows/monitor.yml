@@ -1,4 +1,4 @@
-name: OpenAI Status Monitor
+name: OpenAI Status Tracker
 
 on:
   schedule:
@@ -12,17 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: 18
+          python-version: "3.11"
 
-      - run: npm install
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Run tracker (t=0)
-        run: node tracker.js
+        run: python main.py
 
       - name: Sleep 30 seconds
         run: sleep 30
 
       - name: Run tracker (t=30s)
-        run: node tracker.js
+        run: python main.py
