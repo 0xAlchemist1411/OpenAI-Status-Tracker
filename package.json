@@ -1,0 +1,12 @@
+{
+  "name": "openai-status-tracker",
+  "version": "1.0.0",
+  "description": "Tracks OpenAI API status page and logs incidents to the console",
+  "main": "tracker.js",
+  "scripts": {
+    "start": "node tracker.js"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}
