@@ -1,0 +1,28 @@
+name: OpenAI Status Monitor
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"   # every 1 minute
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - name: Run tracker (t=0)
+        run: node tracker.js
+
+      - name: Sleep 30 seconds
+        run: sleep 30
+
+      - name: Run tracker (t=30s)
+        run: node tracker.js
