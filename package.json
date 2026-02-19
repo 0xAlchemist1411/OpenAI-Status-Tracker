@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
-    "start": "npm install && node tracker.js"
+    "start": "node tracker.js"
   },
   "dependencies": {
     "axios": "^1.6.8",
