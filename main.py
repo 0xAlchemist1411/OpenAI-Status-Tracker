@@ -19,8 +19,6 @@ last_checked_at: str | None = None
 
 
 class _HTMLStripper(HTMLParser):
-    """Tiny HTML → plain-text stripper (no external dep needed)."""
-
     def __init__(self):
         super().__init__()
         self._parts: list[str] = []
@@ -82,8 +80,6 @@ async def poll_feed() -> None:
             "time": format_time(dt),
             "link": latest.get("link", ""),
         }
-
-        last_checked_at = format_time(datetime.now(timezone.utc))
 
         print(
             f"[{latest_incident['time']}] Product: {latest_incident['product']}\n"
